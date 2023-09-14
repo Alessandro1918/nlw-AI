@@ -1,4 +1,5 @@
 import { fastify } from "fastify"
+import { fastifyCors }  from "@fastify/cors"
 import { getAllPromptsRoute } from "./routes/getAllPrompts"
 import { uploadVideoRoute } from "./routes/uploadVideo"
 import { createTranscriptionRoute } from "./routes/createTranscription"
@@ -7,6 +8,10 @@ import { createAiDescriptionRoute } from "./routes/createAiDescription"
 const PORT = Number(process.env.PORT) || 4000
 
 const app = fastify()
+
+app.register(fastifyCors, {
+  origin: "*"
+})
 
 app.register(getAllPromptsRoute)
 app.register(uploadVideoRoute)
