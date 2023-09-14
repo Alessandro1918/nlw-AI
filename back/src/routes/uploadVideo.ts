@@ -9,8 +9,9 @@ import { promisify } from "util"
 
 const pump = promisify(pipeline)
 
-//Upload a mp3 file to the server - POST with a file in the multipart body request (no special field name necessary)
-//(front will get a mp4 file and send it's mp3 here)
+//Upload a mp3 file to the server (front will get a mp4 file and send it's mp3 here)
+//POST http://localhost:4000/videos
+//Body: Multipart form request with mp3 file (no special field name necessary)
 export async function uploadVideoRoute(app: FastifyInstance) {
 
   app.register(fastifyMultipart, {
@@ -32,7 +33,7 @@ export async function uploadVideoRoute(app: FastifyInstance) {
     }
 
     const fileBaseName = path.basename(data.filename, fileExtension)      //"example.mp3"
-    const newFileName = `${fileBaseName}-${randomUUID()}${fileExtension}` //"example-fdsaf.mp3"
+    const newFileName = `${fileBaseName}-${randomUUID()}${fileExtension}` //"example-52AF4206-A0....mp3"
     const uploadedDestination = path.resolve(__dirname, "../../temp", newFileName)
 
     //await for the file "data.file" to write it's stream to fs @ destination:
