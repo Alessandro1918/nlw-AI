@@ -49,6 +49,9 @@ export async function createTranscriptionRoute(app: FastifyInstance) {
       }
     })
 
+    //TODO - Here I could delete the audio file from my temp folder
+    //(the db entry "path" would point to null, but I already saved the transcription)
+
     return {
       id: videoId,
       prompt,
