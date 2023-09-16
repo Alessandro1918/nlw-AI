@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { FileVideo, Upload } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
@@ -11,6 +11,7 @@ import { api } from "@/lib/axios";
 export function VideoInputForm() {
 
   const [ videoFile, setVideoFile ] = useState<File | null>(null)
+  const promptInputRef = useRef<HTMLTextAreaElement>(null)
 
   //Save selected file to the state
   function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
@@ -73,25 +74,32 @@ export function VideoInputForm() {
     return audioFile
   }
 
-  //Calls "convertVideoToAudio", and sends the mp3 file to the back's database
+  //Calls "convertVideoToAudio", and sends the mp3 file to the back's database.
+  //Then, generates that audio transcription.
   async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    const prompt = promptInputRef.current?.value
 
     if (!videoFile) {
       return
     }
 
     const audioFile = await convertVideoToAudio(videoFile)
-
-    console.log(audioFile)
+    // console.log(audioFile)
 
     //Setup multipart form for the req's body
     const data = new FormData()
     data.append('file', audioFile)
 
     const response = await api.post('/videos', data)
+    // console.log(response.data)
 
-    console.log(response.data)
+    const videoId = response.data.video.id
+
+    await api.post(`/videos/${videoId}/transcription`, {
+      prompt,
+    })
   }
 
   return (
@@ -133,6 +141,7 @@ export function VideoInputForm() {
           Prompt de transcrição
         </Label>
         <Textarea
+          ref={promptInputRef}
           id="transcription_prompt"
           className="h-20 leading-relaxed resize-none"
           placeholder="Inclua palavras chave mencionadas no vídeo, separadas por vírgula."
