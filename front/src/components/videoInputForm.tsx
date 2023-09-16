@@ -1,14 +1,18 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { FileVideo, Upload } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
+import { loadFfmpeg } from "@/lib/ffmpeg";
+import { fetchFile } from "@ffmpeg/util"
+import { api } from "@/lib/axios";
 
 export function VideoInputForm() {
 
   const [ videoFile, setVideoFile ] = useState<File | null>(null)
 
+  //Save selected file to the state
   function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.currentTarget
     if (!files) {
@@ -17,6 +21,7 @@ export function VideoInputForm() {
     setVideoFile(files[0])
   }
 
+  //Display video thumbnail
   const previewUrl = useMemo(() => {
     if (!videoFile) {
       return null
@@ -24,15 +29,84 @@ export function VideoInputForm() {
     return URL.createObjectURL(videoFile)
   }, [videoFile])
 
+  //Converto mp4 video to mp3 audio (client-side)
+  async function convertVideoToAudio(video: File) {
+    console.log('Convert started.')
+
+    const ffmpeg = await loadFfmpeg()
+
+    //Add file to the ffmpeg container context
+    await ffmpeg.writeFile('input.mp4', await fetchFile(video))
+
+    // ffmpeg.on('log', log => {
+    //   console.log(log)
+    // })
+
+    ffmpeg.on('progress', progress => {
+      console.log(`Convert progress: ${Math.round(progress.progress * 100)}%`)
+    })
+
+    await ffmpeg.exec([
+      '-i',
+      'input.mp4',
+      '-map',
+      '0:a',
+      '-b:a',
+      '20k',
+      '-acodec',
+      'libmp3lame',
+      'output.mp3'
+    ])
+
+    //Returns a "FileData" file type
+    const data = await ffmpeg.readFile('output.mp3')
+
+    //Converts "FileData" to "JS File"
+    const audioFileBlob = new Blob([data], { type: 'audio/mp3' })
+    // const audioFile = new File([audioFileBlob], 'output.mp3', {
+    const audioFile = new File([audioFileBlob], video.name.replace(".mp4", ".mp3"), {
+      type: 'audio/mpeg'
+    })
+
+    console.log('Convert finished.')
+
+    return audioFile
+  }
+
+  //Calls "convertVideoToAudio", and sends the mp3 file to the back's database
+  async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!videoFile) {
+      return
+    }
+
+    const audioFile = await convertVideoToAudio(videoFile)
+
+    console.log(audioFile)
+
+    //Setup multipart form for the req's body
+    const data = new FormData()
+    data.append('file', audioFile)
+
+    const response = await api.post('/videos', data)
+
+    console.log(response.data)
+  }
+
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={handleUploadVideo}>
       <label 
         htmlFor="video" 
         className="relative border flex rounded-md aspect-video cursor-pointer border-dashed text-sm flex-col gap-2 items-center justify-center text-muted-foreground hover:bg-primary/5"
       >
         {
           previewUrl
-          ? <video src={previewUrl} controls={false} className="pointer-events-none absolute inset-0" />
+          ? <video 
+              src={previewUrl} 
+              controls={false} 
+              className="pointer-events-none absolute inset-0 max-h-full" 
+            />
           : (
             <>
               <FileVideo className="w-4 h-4"/>
