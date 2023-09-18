@@ -39,6 +39,7 @@ Projeto desenvolvido durante a Next Level Week, realizada pela [@Rocketseat](htt
   $ cd back                 #change to this directory
   $ npm install             #download dependencies to node_modules
   $ npx prisma migrate dev  #creates the local dev.db file
+  $ npx prisma db seed      #populates the db with data from the seed.ts file
   $ npx prisma studio       #db management thru a control panel in a web browser tab
   $ npm run dev             #start the project
 
@@ -46,20 +47,20 @@ Projeto desenvolvido durante a Next Level Week, realizada pela [@Rocketseat](htt
   - Lista os prompts disponíveis:
   GET http://localhost:4000/prompts
 
-  - Envia um audio mp3 (extraído do vídeo mp4) para o servidor:
+  - Envia um áudio mp3 (extraído do vídeo mp4) para o servidor:
   POST http://localhost:4000/videos
-  Body: Multipart form, com 1 campo: “file”: YOUR_FILE.mp3
+  Body: Multipart form: “file”: YOUR_FILE.mp3
 
   - Transcreve o áudio de um video da db:
   http://localhost:4000/videos/YOUR_FILE_ID/transcription
-  Body: JSON: {"prompt": "palavra-chave 1, palavra-chave 2, ..."}
+  Body: JSON: {"prompt": "palavra-chave 1, palavra-chave 2, frase 1, frase 2, ..."}
 
-  - Resume conteúdo do áudio:
-  POST http://localhost:4000/ai/description
+  - Usa IA para gerar um conteúdo, baseado no prompt, de um vídeo da db:
+  POST http://localhost:4000/ai/generate
   Body: JSON:
   {
     "videoId": "YOUR_FILE_ID",
     "temperature": 0.5,
-    "template": "Gere um resumo da transcrição do vídeo informada a seguir: '''{transcription}'''"
+    "prompt": "Gere um resumo da transcrição do vídeo informada a seguir: '''{transcription}'''"
   }
 ```
