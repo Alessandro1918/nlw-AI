@@ -5,16 +5,30 @@ import { Textarea } from "./components/ui/textarea";
 import { VideoInputForm } from "./components/videoInputForm";
 import { SettingsForm } from "./components/settingsForm";
 import { useState } from "react";
+import { useCompletion } from "ai/react";
 
 export function App() {
 
   const [ videoId, setVideoId ] = useState<string> ('')
-  const [ selectedPrompt, setSelectedPrompt ] = useState('')
   const [ temperature, setTemperature ] = useState(0.5)
 
-  function handlePromptSelect(template: string) {
-    setSelectedPrompt(template)
-  }
+  const {
+    input, 
+    setInput,
+    handleInputChange,
+    handleSubmit,
+    completion,
+    isLoading
+  } = useCompletion({
+    api: "http://localhost:4000/ai/generate",
+    body: {
+      videoId,
+      temperature
+    },
+    headers: {
+      "Content-type": "application/json"
+    }
+  })
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -48,12 +62,17 @@ export function App() {
             <Textarea 
               placeholder="Inclua o prompt para a IA:"
               className="resize-none p-4 leading-relaxed"
-              defaultValue={selectedPrompt}
+              //V1 prob would work too:
+              // defaultValue={input} 
+              //V2:
+              value={input}
+              onChange={handleInputChange}
             />
             <Textarea 
               placeholder="Resultado gerado pela IA" 
               className="resize-none p-4 leading-relaxed"
               readOnly
+              value={completion}
             />
           </div>
 
@@ -73,9 +92,11 @@ export function App() {
           <Separator />
 
           <SettingsForm 
-            onPromptSelect={handlePromptSelect}
+            onPromptSelect={setInput}
             temperature={temperature}
             setTemperature={setTemperature}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
           />
           
         </aside>

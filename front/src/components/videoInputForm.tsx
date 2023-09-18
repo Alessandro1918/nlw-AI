@@ -67,7 +67,7 @@ export function VideoInputForm(props: VideoInputProps) {
       '-map',
       '0:a',
       '-b:a',
-      '20k',
+      '64k',  //v1: 20k
       '-acodec',
       'libmp3lame',
       'output.mp3'

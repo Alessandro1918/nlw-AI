@@ -5,17 +5,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Separator } from "./ui/separator";
 import { Slider } from "./ui/slider";
 import { PromptSelect } from "./promptSelect";
+import { FormEvent } from "react";
 
 interface SettingsProps {
   onPromptSelect: (template: string) => void 
   temperature: number
   setTemperature: (temperature: number) => void
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void
+  isLoading: boolean
 }
 
 export function SettingsForm(props: SettingsProps) {
 
   return (
-    <form className="space-y-6">
+    <form 
+      className="space-y-6"
+      onSubmit={props.onSubmit}
+    >
 
       <div className="space-y-2">
         <Label>Prompt</Label>
@@ -58,6 +64,7 @@ export function SettingsForm(props: SettingsProps) {
       <Button 
         type="submit" 
         className="w-full"
+        disabled={props.isLoading}
       >
         Executar
         <Wand2 className="w-4 h-4 ml-2"/>
