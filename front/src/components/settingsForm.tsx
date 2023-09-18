@@ -4,22 +4,22 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Separator } from "./ui/separator";
 import { Slider } from "./ui/slider";
+import { PromptSelect } from "./promptSelect";
 
-export function SettingsForm() {
+interface SettingsProps {
+  onPromptSelect: (template: string) => void 
+  temperature: number
+  setTemperature: (temperature: number) => void
+}
+
+export function SettingsForm(props: SettingsProps) {
+
   return (
     <form className="space-y-6">
 
       <div className="space-y-2">
         <Label>Prompt</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um prompt" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="title">Título</SelectItem>
-            <SelectItem value="description">Descrição</SelectItem>
-          </SelectContent>
-        </Select>
+        <PromptSelect onPromptSelect={props.onPromptSelect}/>
       </div>
 
       <div className="space-y-2">
@@ -42,7 +42,11 @@ export function SettingsForm() {
       <div className="space-y-4">
         <Label>Temperatura</Label>
 
-        <Slider min={0} max={1} step={0.1} />
+        <Slider 
+          min={0} max={1} step={0.1} 
+          value={[props.temperature]}   //slider can be used to pick a range, so it will store 2 values
+          onValueChange={value => props.setTemperature(value[0])}
+        />
 
         <span className="block text-xs text-muted-foreground italic leading-relaxed">
           Valores mais altos tendem a deixar o resultado mais criativo, mas com possíveis erros.
@@ -51,7 +55,10 @@ export function SettingsForm() {
 
       <Separator />
 
-      <Button type="submit" className="w-full">
+      <Button 
+        type="submit" 
+        className="w-full"
+      >
         Executar
         <Wand2 className="w-4 h-4 ml-2"/>
       </Button>

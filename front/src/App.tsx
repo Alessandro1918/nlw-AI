@@ -4,8 +4,17 @@ import { Separator } from "./components/ui/separator";
 import { Textarea } from "./components/ui/textarea";
 import { VideoInputForm } from "./components/videoInputForm";
 import { SettingsForm } from "./components/settingsForm";
+import { useState } from "react";
 
 export function App() {
+
+  const [ videoId, setVideoId ] = useState<string> ('')
+  const [ selectedPrompt, setSelectedPrompt ] = useState('')
+  const [ temperature, setTemperature ] = useState(0.5)
+
+  function handlePromptSelect(template: string) {
+    setSelectedPrompt(template)
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -39,6 +48,7 @@ export function App() {
             <Textarea 
               placeholder="Inclua o prompt para a IA:"
               className="resize-none p-4 leading-relaxed"
+              defaultValue={selectedPrompt}
             />
             <Textarea 
               placeholder="Resultado gerado pela IA" 
@@ -56,11 +66,17 @@ export function App() {
         {/* Right side */}
         <aside className="w-80 space-y-6">
 
-          <VideoInputForm />
+          <VideoInputForm 
+            onVideoUploaded={setVideoId}
+          />
           
           <Separator />
 
-          <SettingsForm />
+          <SettingsForm 
+            onPromptSelect={handlePromptSelect}
+            temperature={temperature}
+            setTemperature={setTemperature}
+          />
           
         </aside>
       </main>
