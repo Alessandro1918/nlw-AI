@@ -3,7 +3,7 @@ import { fastifyCors }  from "@fastify/cors"
 import { getAllPromptsRoute } from "./routes/getAllPrompts"
 import { uploadVideoRoute } from "./routes/uploadVideo"
 import { createTranscriptionRoute } from "./routes/createTranscription"
-import { createAiDescriptionRoute } from "./routes/createAiDescription"
+import { createAiContentRoute } from "./routes/createAiContentRoute"
 
 const PORT = Number(process.env.PORT) || 4000
 
@@ -16,7 +16,7 @@ app.register(fastifyCors, {
 app.register(getAllPromptsRoute)
 app.register(uploadVideoRoute)
 app.register(createTranscriptionRoute)
-app.register(createAiDescriptionRoute)
+app.register(createAiContentRoute)
 
 app.listen({
   port: PORT

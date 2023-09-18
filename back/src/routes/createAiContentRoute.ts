@@ -12,7 +12,7 @@ import { openAi } from "../lib/openai"
 //   "temperature": 0.5,
 //   "prompt": "Gere um resumo da transcrição do vídeo informada a seguir: '''{transcription}'''"
 // }
-export async function createAiDescriptionRoute(app: FastifyInstance) {
+export async function createAiContentRoute(app: FastifyInstance) {
 
   app.post("/ai/generate", async (req, reply) => {
     
